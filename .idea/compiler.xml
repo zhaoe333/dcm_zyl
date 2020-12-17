@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="dcm-violation" />
+        <module name="dcm-web" />
+        <module name="dcm-common" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="dcm-common" options="-parameters -source 1.8 -target 1.8 -encoding UTF-8" />
+      <module name="dcm-violation" options="-parameters -source 1.8 -target 1.8 -encoding UTF-8" />
+      <module name="dcm-web" options="-parameters -source 1.8 -target 1.8 -encoding UTF-8" />
+    </option>
+  </component>
+</project>

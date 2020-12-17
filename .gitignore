@@ -1,0 +1,4 @@
+# Project exclude paths
+/dcm-common/target/
+/dcm-violation/target/
+/dcm-web/target/
