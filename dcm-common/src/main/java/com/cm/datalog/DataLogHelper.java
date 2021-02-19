@@ -2,6 +2,8 @@ package com.cm.datalog;
 
 import com.cm.common.json.JacksonUtil;
 import com.cm.common.utils.DateTimeUtils;
+import com.cm.datalog.sender.AbstractLogSender;
+import com.cm.datalog.sender.MongoLogSender;
 import lombok.extern.slf4j.Slf4j;
 //import org.springframework.kafka.core.KafkaTemplate;
 
@@ -11,30 +13,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataLogHelper {
 
-    private static final String VER = "2";
+    private static AbstractLogSender logSender;
 
-    private static final String topicName = "bmw-logs";
-
-    /**
-     * 用于判断是否构建索引
-     */
-    private static String lastDateStr = null;
-
-//    private static KafkaTemplate<String,String> getKafkaTemplate(){
-//        if(null!=kafkaTemplate){
-//            return kafkaTemplate;
-//        }
-//        kafkaTemplate = SpringUtil.getBean("kafkaTemplate");
-//        return kafkaTemplate;
-//    }
+    private static AbstractLogSender getLogSender(){
+        if(null!=logSender){
+            return logSender;
+        }
+        logSender = new MongoLogSender(true);
+        return logSender;
+    }
 
     public static void send(BaseLog baseLog){
-        String message = JacksonUtil.get().readAsString(baseLog);
-        //TODO 目前业务场景不需要处理回调
-//        ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, message);
-//        getKafkaTemplate().send(topicName, message);
-        //数据量大 调试的话可以开启本地记录
-        log.info(message);
+        //确保日志记录不会引起线程中断
+        try{
+            logSender.send(baseLog);
+        }catch(Exception e){
+            log.error("log failed!", e);
+        }
+
     }
 
     /**
@@ -44,7 +40,6 @@ public class DataLogHelper {
      */
     public static TracingLog.Builder createTracingLog(String tracingId) {
         return new TracingLog.Builder()
-                .ver(VER)
                 .tracingId(tracingId);
     }
 
@@ -65,7 +60,6 @@ public class DataLogHelper {
                                               int duration)
     {
         TracingLog.Builder b = new TracingLog.Builder()
-                .ver(VER)
                 .tracingId(String.valueOf(Thread.currentThread().getId()))
                 .timestamp(DateTimeUtils.formatDate())
                 .reqURL(url)
