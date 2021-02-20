@@ -1,9 +1,8 @@
 package com.cm.datalog.sender;
 
-import com.cm.common.json.JacksonUtil;
 import com.cm.common.spring.SpringUtil;
 import com.cm.common.utils.DateTimeUtils;
-import com.cm.datalog.BaseLog;
+import com.cm.datalog.entity.DataLog;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
@@ -20,8 +19,8 @@ public class MongoLogSender extends ObjectLogSender {
 
 
     @Override
-    protected boolean doSend(BaseLog baseLog) {
-        getMongoTemplate().save(baseLog, getCollectionName());
+    protected boolean doSend(DataLog dataLog) {
+        getMongoTemplate().save(dataLog, getCollectionName());
         return true;
     }
 

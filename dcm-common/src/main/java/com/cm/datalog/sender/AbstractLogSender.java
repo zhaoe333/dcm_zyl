@@ -1,7 +1,6 @@
 package com.cm.datalog.sender;
 
-import com.cm.common.json.JacksonUtil;
-import com.cm.datalog.BaseLog;
+import com.cm.datalog.entity.DataLog;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,10 +21,10 @@ public abstract class AbstractLogSender {
 
     /**
      * 记录纯文本日志
-     * @param baseLog
+     * @param dataLog
      * @return
      */
-    public abstract boolean send(BaseLog baseLog);
+    public abstract boolean send(DataLog dataLog);
 
     protected void doLocalLog(String message){
         if(localLog){

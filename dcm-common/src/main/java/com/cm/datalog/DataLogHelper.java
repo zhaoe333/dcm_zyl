@@ -2,9 +2,16 @@ package com.cm.datalog;
 
 import com.cm.common.json.JacksonUtil;
 import com.cm.common.utils.DateTimeUtils;
+import com.cm.datalog.builder.BaseLogBuilder;
+import com.cm.datalog.builder.HttpLogBuilder;
+import com.cm.datalog.builder.LogBuilderFactory;
+import com.cm.datalog.entity.DataLog;
 import com.cm.datalog.sender.AbstractLogSender;
 import com.cm.datalog.sender.MongoLogSender;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
+import java.util.Map;
 //import org.springframework.kafka.core.KafkaTemplate;
 
 /**
@@ -23,24 +30,14 @@ public class DataLogHelper {
         return logSender;
     }
 
-    public static void send(BaseLog baseLog){
+    public static void send(DataLog dataLog){
         //确保日志记录不会引起线程中断
         try{
-            logSender.send(baseLog);
+            logSender.send(dataLog);
         }catch(Exception e){
             log.error("log failed!", e);
         }
 
-    }
-
-    /**
-     * General http tracing log
-     * @param tracingId
-     * @return
-     */
-    public static TracingLog.Builder createTracingLog(String tracingId) {
-        return new TracingLog.Builder()
-                .tracingId(tracingId);
     }
 
     /**
@@ -53,23 +50,16 @@ public class DataLogHelper {
      * @param duration
      */
     public static void sendInternalTracingLog(String url,
-                                              Object header,
-                                              Object body,
+                                              Map<String, String> header,
+                                              String body,
                                               int statusCode,
                                               String response,
-                                              int duration)
-    {
-        TracingLog.Builder b = new TracingLog.Builder()
-                .tracingId(String.valueOf(Thread.currentThread().getId()))
-                .timestamp(DateTimeUtils.formatDate())
-                .reqURL(url)
-                .reqHeader(header != null ? (header instanceof String?header.toString(): JacksonUtil.get().readAsString(header)): null)
-                .reqBody(body != null ? (body instanceof String?body.toString(): JacksonUtil.get().readAsString(body)) : null)
-                .respStatusCode(statusCode)
-                .respContent(response)
-                .duration(duration)
-                .invokeBy("internal");
-        send(b.build());
+                                              int duration){
+        Date date = new Date();
+        HttpLogBuilder logBuilder = LogBuilderFactory.createHttpLogBuilder().invokeBy(BaseLogBuilder.InvokeBy.SEND)
+                .timestamp(date).url(url).header(header).reqBody(body)
+                .code(statusCode).resBody(response).duration(duration);
+        send(logBuilder.toLog());
     }
 
 }
